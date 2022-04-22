@@ -6,14 +6,11 @@ mainDirectory = os.listdir("./Textures/")
 alphaDirectory = "./Textures/alpha/"
 rgbDirectory = "./Textures/RGB/"
 deleteDirectory = "./Textures/delete/"
+lowresDirectory = "./Textures/lowres/"
 
 # Cropping dimensions for MM3D Savefile preview textures
-# https://coderslegacy.com/python/pillow-crop-images/
-left = 400
-right = 512
-top = 0
-bottom = 256
-
+dimensions = (400, 0, 410, 10)
+#            left, top, right, bottom
 for image in mainDirectory:
     if (image.endswith(".png")):
         img = Image.open(f"./Textures/{image}")
@@ -22,15 +19,19 @@ for image in mainDirectory:
         if len(img.getchannel("A").getcolors()) > 1:
             os.replace("./Textures/" + image, alphaDirectory + image)
 
-        # checks if the image resolution is 131072 (the result of 256 x 512)
-        elif (img.size[0] * img.size[1]) == 131072:
-            img_cropped = (img.crop((left, top, right, bottom)))
-
-            # checks if the area color (outside the 400x240 3ds screen area) is 28672
-            if img_cropped.getcolors()[0][0] == 28672:
-               os.replace("./Textures/" + image, deleteDirectory + image)
+        # checks if the image resolution is 256 x 512
+        elif (img.size[0] * img.size[1]) == 256*512:
+            img_cropped = (img.crop(dimensions))
+            
+            # checks how many colors there are in the cropped region to separate mm3d save file texture
+            if len(img_cropped.getcolors()) == 1:
+                os.replace("./Textures/" + image, deleteDirectory + image)
             else:
                 os.replace("./Textures/" + image, rgbDirectory + image)
 
-        else:
+        # checks if image resolution is less than 16x16
+        elif img.size[0] * img.size[1] <= 16^2:
+            os.replace("./Textures/" + image, lowresDirectory + image)
+        
+        elif img.size[0] * img.size[1] > 16^2:
             os.replace("./Textures/" + image, rgbDirectory + image)
