@@ -1,17 +1,24 @@
 # USE PILLOW TO SEPARATE TRANSPARENT IMAGES
+from msilib.schema import Directory
 from PIL import Image
 import os
 
-mainDirectory = os.listdir("./Textures/")
+mainDirectory = "./Textures/"
 alphaDirectory = "./Textures/alpha/"
 rgbDirectory = "./Textures/RGB/"
 deleteDirectory = "./Textures/delete/"
 lowresDirectory = "./Textures/lowres/"
 
+directoriesList = [mainDirectory, alphaDirectory, rgbDirectory, lowresDirectory, deleteDirectory]
 # Cropping dimensions for MM3D Savefile preview textures
 dimensions = (400, 0, 410, 10)
-#            left, top, right, bottom
-for image in mainDirectory:
+            #left, top, right, bottom
+# Check if folders exist
+for dir in directoriesList:
+    if not os.path.isdir(dir):
+        os.mkdir(alphaDirectory)
+
+for image in os.listdir("./Textures/"):
     if (image.endswith(".png")):
         img = Image.open(f"./Textures/{image}")
 
