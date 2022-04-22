@@ -5,6 +5,7 @@ import os
 mainDirectory = os.listdir("./Textures/")
 alphaDirectory = "./Textures/alpha/"
 rgbDirectory = "./Textures/RGB/"
+deleteDirectory = "./Textures/delete"
 
 left = 400
 right = 512
@@ -19,7 +20,10 @@ for image in mainDirectory:
         img.putdata(a)
         if img.getextrema()[3][0] == 0:
             os.replace("./Textures/" + image, alphaDirectory + image)
-        elif (img.size[0] + img.size[1]) >512 and (img.crop((left, top, right, bottom))).getcolors[0][0] == 28672:
+        elif (img.size[0] + img.size[1]) >512:
+            if (img.crop((left, top, right, bottom))).getcolors[0][0] == 28672:
+                os.replace("./Textures/" + image, deleteDirectory + image)
+        else:
             os.replace("./Textures/" + image, rgbDirectory + image)
 
 # https://coderslegacy.com/python/pillow-crop-images/
