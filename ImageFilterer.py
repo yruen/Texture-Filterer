@@ -3,7 +3,8 @@ from PIL import Image
 import imagehash
 import os
 
-hashCheck = True
+hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
+addCount = 0 #keeps track of how many duplicates there are
 
 mainDirectory = "./Textures/"
 alphaDirectory = "./Textures/alpha/"
@@ -13,15 +14,16 @@ lowresDirectory = "./Textures/lowres/"
 
 directoriesList = [mainDirectory, alphaDirectory, rgbDirectory, lowresDirectory, deleteDirectory]
 # Cropping dimensions for MM3D Savefile preview textures
-dimensions = (400, 0, 410, 10)
             #left, top, right, bottom
+dimensions = (400, 0, 410, 10)
+
 # Check if folders exist
 for dir in directoriesList:
-    if not os.path.isdir(dir):
+    if not os.path.isdir(dir) and not hashCheck:
         os.mkdir(alphaDirectory)
 
 for image in os.listdir(mainDirectory):
-    if (image.endswith(".png")):
+    if (image.endswith(".png")) and not hashCheck:
         img = Image.open(mainDirectory + image)
 
         # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
@@ -46,12 +48,18 @@ for image in os.listdir(mainDirectory):
             os.replace("./Textures/" + image, rgbDirectory + image)
 
 # TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
-if hashCheck:
-    # Create hashes for lowres files
-    hashGroup = [[str(imagehash.average_hash(Image.open(lowresDirectory + image))), lowresDirectory + image] for image in os.listdir(lowresDirectory)]
-    
-    # Compare lowres file hashes with
-    for image in os.listdir(rgbDirectory):
-        for hash in hashGroup:
 
-    #print(hashGroup[0]) 
+if hashCheck:
+    # Compare file hashes to find out duplicates and mipmaps
+    
+    for image in os.listdir(mainDirectory):
+        hash1 = imagehash.phash(Image.open(mainDirectory+image))
+        for image2 in os.listdir(mainDirectory):
+            if image != image2:
+                result = hash1 - imagehash.phash(Image.open(mainDirectory + image2))
+                # The smaller the number the closer a texture has to look to another to quality
+                if result <10:
+                    addCount += 1
+                    print(f"{mainDirectory + image} is very similar to {mainDirectory+image2}")
+                    #os.replace(mainDirectory + image, mainDirectory + str(addCount) + image)
+    print(addCount)
