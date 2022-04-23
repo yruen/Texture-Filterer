@@ -45,10 +45,13 @@ for image in os.listdir(mainDirectory):
         elif img.size[0] * img.size[1] > 16^2:
             os.replace("./Textures/" + image, rgbDirectory + image)
 
-# Find a way to link filenames with hashes
-# Possibly 2D list? 
-# Ex: hashGroup[0] = [2020ffffff202020, filename.png]
+# TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
 if hashCheck:
+    # Create hashes for lowres files
     hashGroup = [[str(imagehash.average_hash(Image.open(lowresDirectory + image))), lowresDirectory + image] for image in os.listdir(lowresDirectory)]
-        # print([str(imagehash.average_hash(Image.open(lowresDirectory + image)))])
-    print(hashGroup[0])
+    
+    # Compare lowres file hashes with
+    for image in os.listdir(rgbDirectory):
+        for hash in hashGroup:
+
+    #print(hashGroup[0]) 
