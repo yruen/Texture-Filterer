@@ -1,7 +1,9 @@
 # USE PILLOW TO SEPARATE TRANSPARENT IMAGES
-from msilib.schema import Directory
 from PIL import Image
+import imagehash
 import os
+
+hashCheck = True
 
 mainDirectory = "./Textures/"
 alphaDirectory = "./Textures/alpha/"
@@ -18,9 +20,9 @@ for dir in directoriesList:
     if not os.path.isdir(dir):
         os.mkdir(alphaDirectory)
 
-for image in os.listdir("./Textures/"):
+for image in os.listdir(mainDirectory):
     if (image.endswith(".png")):
-        img = Image.open(f"./Textures/{image}")
+        img = Image.open(mainDirectory + image)
 
         # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
         if len(img.getchannel("A").getcolors()) > 1:
@@ -42,3 +44,11 @@ for image in os.listdir("./Textures/"):
         
         elif img.size[0] * img.size[1] > 16^2:
             os.replace("./Textures/" + image, rgbDirectory + image)
+
+# Find a way to link filenames with hashes
+# Possibly 2D list? 
+# Ex: hashGroup[0] = [2020ffffff202020, filename.png]
+if hashCheck:
+    hashGroup = [[str(imagehash.average_hash(Image.open(lowresDirectory + image))), lowresDirectory + image] for image in os.listdir(lowresDirectory)]
+        # print([str(imagehash.average_hash(Image.open(lowresDirectory + image)))])
+    print(hashGroup[0])
