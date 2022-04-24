@@ -48,18 +48,18 @@ for image in os.listdir(mainDirectory):
             os.replace("./Textures/" + image, rgbDirectory + image)
 
 # TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
-
+imageList = []
 if hashCheck:
-    # Compare file hashes to find out duplicates and mipmaps
-    
+    # Compare file hashes using Imageahsh to find out duplicates and mipmaps
+    imageList = [image for image in os.listdir(mainDirectory)]
     for image in os.listdir(mainDirectory):
-        hash1 = imagehash.phash(Image.open(mainDirectory+image))
-        for image2 in os.listdir(mainDirectory):
-            if image != image2:
-                result = hash1 - imagehash.phash(Image.open(mainDirectory + image2))
-                # The smaller the number the closer a texture has to look to another to quality
-                if result <10:
-                    addCount += 1
-                    print(f"{mainDirectory + image} is very similar to {mainDirectory+image2}")
-                    #os.replace(mainDirectory + image, mainDirectory + str(addCount) + image)
+        # phash stands for perceptual hashing, there are other modes you can experiment with
+        hash1 = imagehash.phash(Image.open(mainDirectory + image))
+        imageList.remove(image) # Removes image hashed from directory, preventing duplicate checking
+        for image2 in imageList:
+            hash2 = imagehash.phash(Image.open(mainDirectory + image2))
+            # The lower the number, the closer the images have to look to each other
+            if hash1 - hash2 <10:
+                print(f"{mainDirectory + image} is very similar to {mainDirectory+image2}")
+                addCount += 1
     print(addCount)
