@@ -1,5 +1,6 @@
 # Texture Filter
 This is a Python script designed to sort textures dumped from **Majoras Mask 3D** to aid upscaling
+It uses Pillow and ImageHash
 ## The script can currently sort:
 1. Alpha and RGB
 
