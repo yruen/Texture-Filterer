@@ -1,11 +1,9 @@
 # USE PILLOW TO SEPARATE TRANSPARENT IMAGES
 from PIL import Image
-import imagehash
 import os
+import imagehash
 
 hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
-numImagePairs = 0 #keeps track of how many duplicate pairs there are
-tracker = -1 #keeps track of how many times the outer loop has been executed
 
 mainDirectory = "./Textures/"
 alphaDirectory = "./Textures/alpha/"
@@ -36,7 +34,7 @@ for image in os.listdir(mainDirectory):
         elif (img.size[0] * img.size[1]) == 256*512:
             img_cropped = (img.crop(dimensions))
             
-            # checks how many colors there are in the cropped region to separate mm3d save file texture
+            # checks how many colors there are in the cropped region to separate mm3d save file preview texture
             if len(img_cropped.getcolors()) == 1:
                 os.replace(mainDirectory + image, deleteDirectory + image)
             else:
@@ -60,50 +58,49 @@ singleImages = []
 imageDupList = []
 imageDupListTotal = []
 imageList = []
+difference = 18 # Higher value, groups less similar
+                # lower value, groups more similar
+hashSize = 12 # determines the "complexity"
+printOutput = False
+
+# Compare file hashes using Imagehash to find out duplicates and mipmaps
 if hashCheck:
-    # Compare file hashes using Imageahsh to find out duplicates and mipmaps
     filelist = [image for image in os.listdir(mainDirectory)]
     for file in filelist:
         if file.endswith(".png"):
             imageList.append(file)
-
+    #filelist.reverse() # starting from higher res files might be better?
+    
     for image in imageList:
         imageDupList = []
         imageList.remove(image)
-        # phash stands for perceptual hashing, there are other modes you can experiment with
-        hash1 = imagehash.phash(Image.open(mainDirectory + image))
+        # Imagehash has multiple methods, refer to the documentary and try the one that works best for you
+        # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
+        # crop_resistant_hash DOES NOT WORK AT ALL
+        hash1 = imagehash.phash(Image.open(mainDirectory + image), hashSize)
         for image2 in imageList:
-            hash2 = imagehash.phash(Image.open(mainDirectory + image2))
+            hash2 = imagehash.phash(Image.open(mainDirectory + image2), hashSize)
             # The lower the number, the closer the images have to look to each other
-            if hash1 - hash2 <15:
+            if hash1 - hash2 <difference:
+                #numDuplicates += 1
                 if image not in imageDupList:
                     imageDupList.append(image)
-                    #print(f"{mainDirectory + image} is very similar to {mainDirectory+image2}")
                 if image2 not in imageDupList:
                     imageDupList.append(image2)
-                #imageList.remove(image2) # Removes mainDirectory image hashed from directory, preventing duplicate checking
-            else:
-                singleImages.append(image)
+                imageList.remove(image2)
+            #else:
+            #    singleImages.append(image)
                     
-        #print(imageDupList)
         if imageDupList != []:
-            imageDupListTotal.append(imageDupList)
-
-    print("Hash checking done")
-    for image in imageDupListTotal:
-        #print(image)
-        if isinstance(image, list):
-            for image in image:
-                print(image)
-            #duplicateDirectory = mainDirectory + image[0][0:-4] + "/"
-            #if not os.path.isdir(duplicateDirectory):
-            #    os.mkdir(duplicateDirectory)
-            #os.replace(mainDirectory + image, duplicateDirectory + image)
-        else:
-            duplicateDirectory = mainDirectory + image[0][0:-4] + "/"
-            if not os.path.isdir(duplicateDirectory):
-                os.mkdir(duplicateDirectory)
-            os.replace(mainDirectory + image[0], duplicateDirectory + image[0])
-            for dupImage in image:
-                if dupImage != image[0]:
-                    os.replace(mainDirectory + dupImage, duplicateDirectory + dupImage)
+            if printOutput:
+                print(imageDupList)
+            for i in range(len(imageDupList)):
+                duplicateDirectory = mainDirectory + imageDupList[0][0:-4] + "/"
+                if not os.path.isdir(duplicateDirectory):
+                    os.mkdir(duplicateDirectory)
+                if os.path.exists(mainDirectory + imageDupList[0]):
+                    os.replace(mainDirectory + imageDupList[0], duplicateDirectory + imageDupList[0])
+                if image[i] != image[0]:
+                    if os.path.exists(mainDirectory + imageDupList[i]):
+                        os.replace(mainDirectory + imageDupList[i], duplicateDirectory + imageDupList[i])
+    print("sorting done")
