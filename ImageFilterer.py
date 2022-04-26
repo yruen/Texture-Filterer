@@ -1,7 +1,7 @@
 # USE PILLOW TO SEPARATE TRANSPARENT IMAGES
 from PIL import Image
 import os
-import imagehash
+from imageDuplicateDetector import duplicateSorter
 
 hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
 
@@ -47,60 +47,4 @@ for image in os.listdir(mainDirectory):
         elif img.size[0] * img.size[1] > 16^2:
             os.replace(mainDirectory + image, rgbDirectory + image)
 
-# TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
-
-# Loop that adds to a 2D list
-# imageDupList[0] is the first group of images
-# imageDupList[0][0] should be the first image of which hashes are compared to
-# imageDupList[0][1], [2], [3] etc should be the duplicates of the first image
-
-singleImages = []
-imageDupList = []
-imageDupListTotal = []
-imageList = []
-difference = 18 # Higher value, groups less similar
-                # lower value, groups more similar
-hashSize = 12 # determines the "complexity"
-printOutput = False
-
-# Compare file hashes using Imagehash to find out duplicates and mipmaps
-if hashCheck:
-    filelist = [image for image in os.listdir(mainDirectory)]
-    for file in filelist:
-        if file.endswith(".png"):
-            imageList.append(file)
-    #filelist.reverse() # starting from higher res files might be better?
-    
-    for image in imageList:
-        imageDupList = []
-        imageList.remove(image)
-        # Imagehash has multiple methods, refer to the documentary and try the one that works best for you
-        # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
-        # crop_resistant_hash DOES NOT WORK AT ALL
-        hash1 = imagehash.phash(Image.open(mainDirectory + image), hashSize)
-        for image2 in imageList:
-            hash2 = imagehash.phash(Image.open(mainDirectory + image2), hashSize)
-            # The lower the number, the closer the images have to look to each other
-            if hash1 - hash2 <difference:
-                #numDuplicates += 1
-                if image not in imageDupList:
-                    imageDupList.append(image)
-                if image2 not in imageDupList:
-                    imageDupList.append(image2)
-                imageList.remove(image2)
-            #else:
-            #    singleImages.append(image)
-                    
-        if imageDupList != []:
-            if printOutput:
-                print(imageDupList)
-            for i in range(len(imageDupList)):
-                duplicateDirectory = mainDirectory + imageDupList[0][0:-4] + "/"
-                if not os.path.isdir(duplicateDirectory):
-                    os.mkdir(duplicateDirectory)
-                if os.path.exists(mainDirectory + imageDupList[0]):
-                    os.replace(mainDirectory + imageDupList[0], duplicateDirectory + imageDupList[0])
-                if image[i] != image[0]:
-                    if os.path.exists(mainDirectory + imageDupList[i]):
-                        os.replace(mainDirectory + imageDupList[i], duplicateDirectory + imageDupList[i])
-    print("sorting done")
+duplicateSorter(mainDirectory, printOutput=True)
