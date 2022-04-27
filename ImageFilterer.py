@@ -33,7 +33,7 @@ for image in os.listdir(mainDirectory):
         # checks if the image resolution is 256 x 512
         elif (img.size[0] * img.size[1]) == 256*512:
             img_cropped = (img.crop(dimensions))
-            
+
             # checks how many colors there are in the cropped region to separate mm3d save file preview texture
             if len(img_cropped.getcolors()) == 1:
                 os.replace(mainDirectory + image, deleteDirectory + image)
@@ -43,8 +43,13 @@ for image in os.listdir(mainDirectory):
         # checks if image resolution is less than 16x16
         elif img.size[0] * img.size[1] <= 16^2:
             os.replace(mainDirectory + image, lowresDirectory + image)
-        
         elif img.size[0] * img.size[1] > 16^2:
             os.replace(mainDirectory + image, rgbDirectory + image)
 
-duplicateSorter(mainDirectory, printOutput=True)
+# Extra sorters
+
+# Group images by similarity using ImageHash
+# Set printOutput to True to see images being combined, disable for better performance maybe
+if hashCheck:
+    duplicateSorter(mainDirectory, printOutput=False, hashSize=15, difference=18)
+    print("Done")

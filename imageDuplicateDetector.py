@@ -8,7 +8,7 @@ imageList = []
 # TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
 
 '''
-hashSize determines the "complexity" of the hashing
+hashSize determines the complexity of the hashing; higher makes the sorting take longer, adjust accordingly with difference
 difference determines how similar images must look, higher values group less similar images, lower values group more similar
 '''
 def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False):
@@ -24,7 +24,6 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
         imageList.remove(image)
         # Imagehash has multiple methods, refer to the documentary and try the one that works best for you
         # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
-        # crop_resistant_hash DOES NOT WORK AT ALL
         hash1 = imagehash.phash(Image.open(directory + image), hashSize)
         for image2 in imageList:
             hash2 = imagehash.phash(Image.open(directory + image2), hashSize)
@@ -40,7 +39,7 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
             #    singleImages.append(image) 
 
         if sort:
-            if imageDupList != []:
+            if imageDupList != [] and type(imageDupList) is list:
                 if printOutput: print(imageDupList)
                 for i in range(len(imageDupList)):
                     duplicateDirectory = directory + imageDupList[0][0:-4] + "/"
@@ -51,7 +50,3 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                     if image[i] != image[0]:
                         if os.path.exists(directory + imageDupList[i]):
                             os.replace(directory + imageDupList[i], duplicateDirectory + imageDupList[i])
-            return "Sorted images into folders"
-        
-        if not sort:
-            return "Finished hashing"
