@@ -1,17 +1,44 @@
 # USE PILLOW TO SEPARATE TRANSPARENT IMAGES
+import argparse
 from PIL import Image
 import os
 from imageDuplicateDetector import duplicateSorter
 
 hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
 
-mainDirectory = "./Textures/"
-alphaDirectory = "./Textures/alpha/"
-rgbDirectory = "./Textures/RGB/"
-deleteDirectory = "./Textures/delete/"
-lowresDirectory = "./Textures/lowres/"
 
-directoriesList = [mainDirectory, alphaDirectory, rgbDirectory, lowresDirectory, deleteDirectory]
+def get_texture_dir():
+    """
+    Tries to get main textures folder from argument
+    Could be converted into a "parse_args" function if more arguments ever needed
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-t",
+        "--texture-folder",
+        metavar="FOLDER",
+    )
+    args = parser.parse_args()
+
+    if args.texture_folder:
+        return f"{args.texture_folder}/"
+    else:
+        return "./Textures/"
+
+
+mainDirectory = get_texture_dir()
+alphaDirectory = f"{mainDirectory}alpha/"
+rgbDirectory = f"{mainDirectory}RGB/"
+deleteDirectory = f"{mainDirectory}delete/"
+lowresDirectory = f"{mainDirectory}lowres/"
+
+directoriesList = [
+    mainDirectory,
+    alphaDirectory,
+    rgbDirectory,
+    lowresDirectory,
+    deleteDirectory,
+]
 resolutions = [16, 32, 64, 128, 256, 512, 1024] # resolutions of textures
 # Cropping dimensions for MM3D Savefile preview textures
             #left, top, right, bottom
