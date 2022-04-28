@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import imagehash
 
+count = 0 # keeps track of how many duplicate/similar images there are
 singleImages = [] # maybe implement in future?
 imageList = []
 
@@ -44,6 +45,7 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
 
         if sort:
             if imageDupList != [] and type(imageDupList) is list:
+                count += 1
                 if printOutput: print(imageDupList)
                 for i in range(len(imageDupList)):
                     duplicateDirectory = directory + imageDupList[0][0:-4] + "/"
@@ -54,3 +56,4 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                     if image[i] != image[0]:
                         if os.path.exists(directory + imageDupList[i]):
                             os.replace(directory + imageDupList[i], duplicateDirectory + imageDupList[i])
+    return count

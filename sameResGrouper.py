@@ -2,9 +2,10 @@
 import os
 from PIL import Image
 
+totalTextureSizeDirs = []
 textureSizes = []
 
-def sameTextureGrouping(mainDirectory):
+def sameSizeGrouping(mainDirectory):
     for image in os.listdir(mainDirectory):
         if (image.endswith(".png")):
             image = Image.open(mainDirectory+image)
@@ -14,8 +15,10 @@ def sameTextureGrouping(mainDirectory):
 
     # creates directories named with the resolutions of images in directory (textureSizes list)
     for resolution in textureSizes:
-        if not os.path.isdir(f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/"):
-            os.mkdir(f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/")
+        textureSizeDir = f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/"
+        if not os.path.isdir(textureSizeDir):
+            os.mkdir(textureSizeDir)
+            totalTextureSizeDirs.append(textureSizeDir)
 
     for image in os.listdir(mainDirectory):
         if (image.endswith(".png")):
@@ -23,4 +26,4 @@ def sameTextureGrouping(mainDirectory):
             for resolution in textureSizes:
                 if imagePil.size == resolution:
                     os.replace(mainDirectory + image, f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/{image}")
-    return textureSizes
+    return textureSizes, totalTextureSizeDirs
