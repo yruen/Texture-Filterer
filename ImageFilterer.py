@@ -3,9 +3,9 @@ import argparse
 from PIL import Image
 import os
 from imageDuplicateDetector import duplicateSorter
+from sameResGrouper import sameTextureGrouping
 
 hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
-
 
 def get_texture_dir():
     """
@@ -25,7 +25,6 @@ def get_texture_dir():
     else:
         return "./Textures/"
 
-
 mainDirectory = get_texture_dir()
 alphaDirectory = f"{mainDirectory}alpha/"
 rgbDirectory = f"{mainDirectory}RGB/"
@@ -39,7 +38,7 @@ directoriesList = [
     lowresDirectory,
     deleteDirectory,
 ]
-resolutions = [16, 32, 64, 128, 256, 512, 1024] # resolutions of textures
+
 # Cropping dimensions for MM3D Savefile preview textures
             #left, top, right, bottom
 dimensions = (400, 0, 410, 10)
@@ -77,6 +76,9 @@ for image in os.listdir(mainDirectory):
 
 # Group images by similarity using ImageHash
 # Set printOutput to True to see images being combined, disable for better performance maybe
-if hashCheck:
+if False:
     duplicateSorter(mainDirectory, printOutput=False, hashSize=15, difference=18)
     print("Done")
+
+# Group images by their resolution
+print(sameTextureGrouping(mainDirectory))
