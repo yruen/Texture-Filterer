@@ -13,7 +13,7 @@ def alphaGrouping(mainDirectory):
     for dir in subDirectoriesList:
         if not os.path.isdir(dir):
             os.mkdir(alphaDirectory)
-        else: print("why")
+    # TODO: Figure out why it keeps trying to make a directory despite the fact it says to only do it when it doesn't exist
 
     for image in os.listdir(mainDirectory):
         if (image.endswith(".png")): # checks if file in directory is a .png
@@ -24,5 +24,3 @@ def alphaGrouping(mainDirectory):
                 os.replace(mainDirectory + image, alphaDirectory + image)
             else:
                 os.replace(mainDirectory + image, rgbDirectory + image)
-
-alphaGrouping("./Textures/")
