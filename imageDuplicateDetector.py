@@ -7,22 +7,24 @@ imageList = []
 
 # TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
 
-'''
-hashSize determines the complexity of the hashing; higher makes the sorting take longer, adjust accordingly with difference
-difference determines how similar images must look, higher values group less similar images, lower values group more similar
-'''
-def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False):
+"""
+difference value determines how similar images must look; lower value means images have to look more similar
+hashSize value determines the complexity of the hashing; higher values means higher intensity = more CPU usage = takes longer
+adjust difference and hashSize values in relation with each other
+"""
+
+# The default values choosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
+def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False, groupSingleImages=False):
     # filelist creation for loop
     filelist = [image for image in os.listdir(directory)]
     for file in filelist:
         if file.endswith(".png"): imageList.append(file)
     if reverseVar: filelist.reverse() # starting from higher res files might be better?
-    totalDupList = []
 
     for image in imageList:
         imageDupList = []
         imageList.remove(image)
-        # Imagehash has multiple methods, refer to the documentary and try the one that works best for you
+        # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
         # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
         hash1 = imagehash.phash(Image.open(directory + image), hashSize)
         for image2 in imageList:
@@ -36,7 +38,9 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                     imageDupList.append(image2)
                 imageList.remove(image2)
 
-            #    singleImages.append(image) 
+        #if groupSingleImages:
+        #    singleImages.append(image)
+
 
         if sort:
             if imageDupList != [] and type(imageDupList) is list:
