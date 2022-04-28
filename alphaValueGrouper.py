@@ -7,13 +7,15 @@ def alphaGrouping(mainDirectory):
     alphaDirectory = f"{mainDirectory}alpha/"
     rgbDirectory = f"{mainDirectory}RGB/"
 
-    subDirectoriesList = [alphaDirectory, rgbDirectory,]
+    subDirectoriesList = [
+        alphaDirectory,
+        rgbDirectory,
+    ]
 
     # Check if folders exist to sort images into
     for dir in subDirectoriesList:
         if not os.path.isdir(dir):
-            os.mkdir(alphaDirectory)
-    # TODO: Figure out why it keeps trying to make a directory despite the fact it says to only do it when it doesn't exist
+            os.mkdir(dir)
 
     for image in os.listdir(mainDirectory):
         if (image.endswith(".png")): # checks if file in directory is a .png
