@@ -1,9 +1,10 @@
-# USE PILLOW TO SEPARATE TRANSPARENT IMAGES
 import argparse
 from PIL import Image
 import os
+
 from imageDuplicateDetector import duplicateSorter
 from sameResGrouper import sameTextureGrouping
+from alphaValueGrouper import alphaGrouping
 
 hashCheck = True # Enables the hash checking / Disables main filtering code (they conflict for now)
 
@@ -28,57 +29,43 @@ def get_texture_dir():
 mainDirectory = get_texture_dir()
 alphaDirectory = f"{mainDirectory}alpha/"
 rgbDirectory = f"{mainDirectory}RGB/"
-deleteDirectory = f"{mainDirectory}delete/"
-lowresDirectory = f"{mainDirectory}lowres/"
 
 directoriesList = [
     mainDirectory,
     alphaDirectory,
     rgbDirectory,
-    lowresDirectory,
-    deleteDirectory,
 ]
 
 # Cropping dimensions for MM3D Savefile preview textures
             #left, top, right, bottom
 dimensions = (400, 0, 410, 10)
 
-# Check if folders exist
-for dir in directoriesList:
-    if not os.path.isdir(dir) and not hashCheck:
-        os.mkdir(alphaDirectory)
+# TODO: Implement this code with the new module system
+# checks if the image resolution is 256 x 512
+#if (img.size[0] * img.size[1]) == 256*512:
+#    img_cropped = (img.crop(dimensions))
+#
+#    # checks how many colors there are in the cropped region to separate mm3d save file preview texture
+#    if len(img_cropped.getcolors()) == 1:
+#        os.replace(mainDirectory + image, deleteDirectory + image)
+#    else:
+#       os.replace(mainDirectory + image, rgbDirectory + image)
 
-for image in os.listdir(mainDirectory):
-    if (image.endswith(".png")) and not hashCheck:
-        img = Image.open(mainDirectory + image)
+# Sorters
 
-        # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
-        if len(img.getchannel("A").getcolors()) > 1:
-            os.replace(mainDirectory + image, alphaDirectory + image)
-
-        # checks if the image resolution is 256 x 512
-        elif (img.size[0] * img.size[1]) == 256*512:
-            img_cropped = (img.crop(dimensions))
-
-            # checks how many colors there are in the cropped region to separate mm3d save file preview texture
-            if len(img_cropped.getcolors()) == 1:
-                os.replace(mainDirectory + image, deleteDirectory + image)
-            else:
-                os.replace(mainDirectory + image, rgbDirectory + image)
-
-        # checks if image resolution is less than 16x16
-        elif img.size[0] * img.size[1] <= 16^2:
-            os.replace(mainDirectory + image, lowresDirectory + image)
-        elif img.size[0] * img.size[1] > 16^2:
-            os.replace(mainDirectory + image, rgbDirectory + image)
-
-# Extra sorters
-
-# Group images by similarity using ImageHash
-# Set printOutput to True to see images being combined, disable for better performance maybe
-if False:
-    duplicateSorter(mainDirectory, printOutput=False, hashSize=15, difference=18)
+"""
+Group images by similarity using ImageHash
+difference value determines how similar images must look; lower value means images have to look more similar
+hashSize value determines the complexity of the hashing; higher values means higher intensity = more CPU usage = takes longer
+adjust difference and hashSize values in relation with each other
+Set printOutput to True to see images being combined REPLACE WITH A PROGRESS BAR ?
+"""
+if hashCheck:
+    duplicateSorter(mainDirectory, difference=18, hashSize=12, printOutput=False)
     print("Done")
 
 # Group images by their resolution
-print(sameTextureGrouping(mainDirectory))
+sameTextureGrouping(mainDirectory)
+
+# Group images by their alpha channel
+alphaGrouping(mainDirectory)
