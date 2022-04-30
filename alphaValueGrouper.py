@@ -2,10 +2,10 @@
 import os
 from PIL import Image
 
-def alphaGrouping(mainDirectory):
+def alphaGrouping(directory):
 
-    alphaDirectory = f"{mainDirectory}alpha/"
-    rgbDirectory = f"{mainDirectory}RGB/"
+    alphaDirectory = f"{directory}alpha/"
+    rgbDirectory = f"{directory}RGB/"
 
     subDirectoriesList = [
         alphaDirectory,
@@ -17,12 +17,11 @@ def alphaGrouping(mainDirectory):
         if not os.path.isdir(dir):
             os.mkdir(dir)
 
-    for image in os.listdir(mainDirectory):
-        if (image.endswith(".png")): # checks if file in directory is a .png
-            img = Image.open(mainDirectory + image)
+    # checks if file in directory is a .png
+    images = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")]
 
-            # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
-            if len(img.getchannel("A").getcolors()) > 1:
-                os.replace(mainDirectory + image, alphaDirectory + image)
-            else:
-                os.replace(mainDirectory + image, rgbDirectory + image)
+    for image in images: # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
+        if len(Image.open(image.path).getchannel("A").getcolors()) > 1:
+            os.replace(image.path, alphaDirectory + image.name)
+        else:
+            os.replace(image.path, rgbDirectory + image.name)

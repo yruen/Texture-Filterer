@@ -16,14 +16,14 @@ adjust difference and hashSize values in relation with each other
 
 # The default values choosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
 def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False, groupSingleImages=False):
-    # filelist creation for loop
-    filelist = [image for image in os.listdir(directory)]
-    for file in filelist:
-        if file.endswith(".png"): imageList.append(file)
-    if reverseVar: filelist.reverse() # starting from higher res files might be better?
+    count = 0
+    # For loop that gets files from directory and checks if they're PNGs
+    imageList = [imagePath for imagePath in os.listdir(directory) if imagePath.endswith(".png")]
+    if reverseVar: imageList.reverse() # starting from higher res files might be better?
 
     for image in imageList:
         imageDupList = []
+        # Image is removed to reduce amount of images hashed
         imageList.remove(image)
         # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
         # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
@@ -57,3 +57,38 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                         if os.path.exists(directory + imageDupList[i]):
                             os.replace(directory + imageDupList[i], duplicateDirectory + imageDupList[i])
     return count
+
+# This is a mess, needs severe optimization
+def secondPassDS(directory):
+    groupedImages = []
+    # accumulates folders
+    folders = [entry for entry in os.scandir(directory) if entry.is_dir()]
+
+    for folder in folders:
+        #imagesAtLowestRes = [Image.open(image.path).size for image in os.scandir(folder.path)]
+        for image in os.scandir(folder.path):
+            groupedImages.append(Image.open(image.path).size)
+            lowestRes = min(groupedImages)
+            #print(lowestRes)
+            for image1 in groupedImages:
+                if lowestRes == image1:
+                    lowResImageHash = imagehash.phash(Image.open(image.path))
+                    
+                    for imageRoot in os.scandir(directory):
+                        if not imageRoot.is_dir():
+                            rootImageHash = imagehash.phash(Image.open(imageRoot.path))
+                            if lowResImageHash - rootImageHash <10:
+                                if not os.path.isfile(image.path[:len(image.name)]+"/"+imageRoot.name):
+                                    if os.path.isfile("./Textures/"+imageRoot.name):
+                                        # Needs optimization, checks files multiple times
+                                        print(image.path[:len(image.name)], imageRoot.path)
+                                        print(image.path[:len(image.name)]+"/"+imageRoot.name)
+                                        try:
+                                            os.replace(imageRoot.path, image.path[:len(image.name)]+"/"+imageRoot.name)
+                                        except:
+                                            None
+
+    #1. Access one folder in list
+    #2. Get smallest image (size wise) in folder with min(list)
+    #3. Compare smallest image ONLY hash with other images in root of ./Textures/
+    #4. Move hashes that match under a certain value to the other directory
