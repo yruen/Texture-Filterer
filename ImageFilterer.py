@@ -2,7 +2,7 @@
 import argparse
 
 from imageDuplicateDetector import duplicateSorter
-from sameResGrouper import sameSizeGrouping
+from sameResGrouper import groupResolution, groupAllSameResolution
 from alphaValueGrouper import alphaGrouping
 from specialImageGrouping import mm3dSaveFileGrouping
 
@@ -29,27 +29,29 @@ def get_texture_dir():
 mainDirectory = get_texture_dir()
 
 # Sorters
+# All return the count of images sorted
 
 # mm3D save file preview separation
-# returns number of images
 #print(mm3dSaveFileGrouping(mainDirectory))
 
 """
 Group images by similarity using ImageHash
-Returns number of duplicate images
 difference value determines how similar images must look; lower value means images have to look more similar
 hashSize value determines the complexity of the hashing; higher values means higher intensity = more CPU usage = takes longer
 adjust difference and hashSize values in relation with each other
 Set printOutput to True to see images being combined 
 REPLACE WITH A PROGRESS BAR ?
 """
+
 if hashCheck:
     duplicateSorter(mainDirectory, difference=18, hashSize=12, printOutput=False)
     print("Done")
 
-# Group images by their resolution
-# Returns the list of resolutions + texture directories in 2D array
-#sameSizeGrouping(mainDirectory)
+# Group all images in a directory by their resolution
+#groupAllSameResolution(mainDirectory)
+
+# Group images by a given resolution, tuples are prefered
+#groupResolution(mainDirectory, (16,16))
 
 # Group images by their alpha channel
-alphaGrouping(mainDirectory)
+#alphaGrouping(mainDirectory)
