@@ -2,28 +2,35 @@
 import os
 from PIL import Image
 
-totalTextureSizeDirs = []
-textureSizes = []
+def groupResolution(mainDirectory, res):
+    count = 0
+    tracker = -1
+    if type(res) is not list: res = [res] # Makes this integrate with groupAllSameResolution()
+    # For loop that gets files from directory, checks if they're PNGs and makes them PIL instances
+    imagesPIL = [Image.open(mainDirectory + imagePath) for imagePath in os.listdir(mainDirectory) if imagePath.endswith(".png")]
 
-def sameSizeGrouping(mainDirectory):
-    for image in os.listdir(mainDirectory):
-        if (image.endswith(".png")):
-            image = Image.open(mainDirectory+image)
-            if image.size not in textureSizes:
-                textureSizes.append(image.size)
-            # Adds all the resolutions images are at to a list to compare them
+    for imagePIL in imagesPIL:
+        if len(res) > 1:
+            tracker += 1 # maybe kinda lazy fix for integration with groupAllSameResolution()
+            # doing a "for res in res" was not working well
 
-    # creates directories named with the resolutions of images in directory (textureSizes list)
-    for resolution in textureSizes:
-        textureSizeDir = f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/"
-        if not os.path.isdir(textureSizeDir):
-            os.mkdir(textureSizeDir)
-            totalTextureSizeDirs.append(textureSizeDir)
+        # Will group all images with the tuple resolution (recommended)
+        if type(res[tracker]) is tuple and imagePIL.size ==res[tracker]:
+            resDir = f"{mainDirectory}{res[tracker][0]}x{res[tracker][1]}/"
+            # Checks if directory was created and if not will create one
+            if not os.path.isdir(resDir): os.mkdir(resDir)
+            os.replace(imagePIL.filename, resDir+imagePIL.filename[len(mainDirectory):])
+            count += 1
 
-    for image in os.listdir(mainDirectory):
-        if (image.endswith(".png")):
-            imagePil = Image.open(mainDirectory+image)
-            for resolution in textureSizes:
-                if imagePil.size == resolution:
-                    os.replace(mainDirectory + image, f"{mainDirectory}{str(resolution[0])}x{str(resolution[1])}/{image}")
-    return textureSizes, totalTextureSizeDirs
+        # If only an int was given, will combine all that have that resolution in either their width or length (not recommended)
+        elif type(res[tracker]) is int and (imagePIL.size[0]==res[tracker] or imagePIL.size[1]==res[tracker]):
+            resDir = f"{mainDirectory}{res[tracker]}/"
+            # Checks if directory was created and if not will create one
+            if not os.path.isdir(resDir): os.mkdir(resDir)
+            os.replace(imagePIL.filename, resDir+imagePIL.filename[len(mainDirectory):])
+            count += 1
+    return count
+
+def groupAllSameResolution(mainDirectory):
+    imagesPILsizes = [Image.open(mainDirectory + imagePath).size for imagePath in os.listdir(mainDirectory) if imagePath.endswith(".png")]
+    return groupResolution(mainDirectory, imagesPILsizes)
