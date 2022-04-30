@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import argparse
 
-from imageDuplicateDetector import duplicateSorter
+from imageDuplicateDetector import duplicateSorter, secondPassDS
 from sameResGrouper import groupResolution, groupAllSameResolution
 from alphaValueGrouper import alphaGrouping
 from specialImageGrouping import mm3dSaveFileGrouping
@@ -44,8 +44,10 @@ REPLACE WITH A PROGRESS BAR ?
 """
 
 if hashCheck:
-    duplicateSorter(mainDirectory, difference=18, hashSize=12, printOutput=False)
-    print("Done")
+    duplicateSorter(mainDirectory)
+    #secondPassDS(mainDirectory)
+    #duplicateSorter(mainDirectory, difference=8, hashSize=12, printOutput=False)
+    #print("Done")
 
 # Group all images in a directory by their resolution
 #groupAllSameResolution(mainDirectory)
