@@ -8,25 +8,20 @@ from specialImageGrouping import mm3dSaveFileGrouping
 
 hashCheck = False # Enables the hash checking, disabled by default because it is CPU intensive
 
-def get_texture_dir():
-    """
-    Tries to get main textures folder from argument
-    Could be converted into a "parse_args" function if more arguments ever needed
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-t",
-        "--texture-folder",
-        metavar="FOLDER",
-    )
-    args = parser.parse_args()
 
-    if args.texture_folder:
-        return f"{args.texture_folder}/"
-    else:
-        return "./Textures/"
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-t",
+    "--texture-folder",
+    metavar="FOLDER",
+)
+args = parser.parse_args()
+del parser
 
-mainDirectory = get_texture_dir()
+if args.texture_folder:
+    mainDirectory = f"{args.texture_folder}/"
+else:
+    mainDirectory = "./Textures/"
 
 # Sorters
 # All return the count of images sorted
