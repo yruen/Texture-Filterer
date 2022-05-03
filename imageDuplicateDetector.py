@@ -6,7 +6,42 @@ count = 0 # keeps track of how many duplicate/similar images there are
 singleImages = [] # maybe implement in future?
 imageList = []
 
-# TODO: #7 EXPORT HASHES TO TXT OR OTHER FORMAT TO NOT NEED TO KEEP CREATING HASHES
+
+class CacheHash:
+    def __init__(self, directory, cacheFile, hashSize: int):
+        self.hashSize = hashSize
+        self.directory = directory
+        self.cache = {}
+
+        cacheFile = f"{directory}/{cacheFile}"
+        os.close(os.open(cacheFile, os.O_CREAT))  # create the file if it doesn't exist
+
+        self.cacheFile = open(cacheFile, "r+t", encoding="utf-8")
+        self.parse()
+
+    def parse(self):
+        self.cacheFile.seek(0)  # go to start of the file
+        for line in self.cacheFile:
+            try:
+                (img, imghash) = line.split("\0")
+                self.cache[img] = int(imghash, 16)
+            except ValueError:
+                continue  # if this line corrupt/broken, go to the next line
+
+    def get_hash(self, img) -> int:
+        """
+        gets the hash of an image
+        if the hash is on the cache, get it from there
+        if not, calculate and put it on there
+        """
+        if img in self.cache:
+            return self.cache[img]
+        else:
+            imghash = imagehash.phash(Image.open(self.directory + img), self.hashSize)
+            self.cache[img] = imghash
+            self.cacheFile.write(f"{img}\0{imghash}\n")
+            return imghash
+
 
 """
 difference value determines how similar images must look; lower value means images have to look more similar
@@ -14,8 +49,17 @@ hashSize value determines the complexity of the hashing; higher values means hig
 adjust difference and hashSize values in relation with each other
 """
 
-# The default values choosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
-def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False, groupSingleImages=False):
+# The default values chosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
+def duplicateSorter(
+    directory,
+    difference=18,
+    hashSize=12,
+    reverseVar=True,
+    sort=True,
+    printOutput=False,
+    groupSingleImages=False,
+):
+    cache = CacheHash(directory, f".hash{hashSize}", hashSize)
     count = 0
     # For loop that gets files from directory and checks if they're PNGs
     imageList = [imagePath for imagePath in os.listdir(directory) if imagePath.endswith(".png")]
@@ -27,9 +71,10 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
         imageList.remove(image)
         # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
         # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
-        hash1 = imagehash.phash(Image.open(directory + image), hashSize)
+        hash1 = cache.get_hash(image)
+
         for image2 in imageList:
-            hash2 = imagehash.phash(Image.open(directory + image2), hashSize)
+            hash2 = cache.get_hash(image2)
             # The lower the difference value, the closer the images have to look to each other
             if hash1 - hash2 <difference:
                 #numDuplicates += 1
@@ -73,7 +118,7 @@ def secondPassDS(directory):
             for image1 in groupedImages:
                 if lowestRes == image1:
                     lowResImageHash = imagehash.phash(Image.open(image.path))
-                    
+
                     for imageRoot in os.scandir(directory):
                         if not imageRoot.is_dir():
                             rootImageHash = imagehash.phash(Image.open(imageRoot.path))
