@@ -15,7 +15,7 @@ adjust difference and hashSize values in relation with each other
 """
 
 # The default values choosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
-def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False, groupSingleImages=False):
+def duplicate_sorter(directory, difference=18, hashSize=12, reverseVar=True, sort=True, printOutput=False, groupSingleImages=False):
     count = 0
     # For loop that gets files from directory and checks if they're PNGs
     imageList = [imagePath for imagePath in os.listdir(directory) if imagePath.endswith(".png")]
@@ -23,8 +23,8 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
 
     for image in imageList:
         imageDupList = []
-        # Image is removed to reduce amount of images hashed
-        imageList.remove(image)
+
+        imageList.remove(image) # Image is removed to reduce amount of images hashed
         # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
         # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
         hash1 = imagehash.phash(Image.open(directory + image), hashSize)
@@ -37,11 +37,11 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                     imageDupList.append(image)
                 if image2 not in imageDupList:
                     imageDupList.append(image2)
+
                 imageList.remove(image2)
 
         #if groupSingleImages:
         #    singleImages.append(image)
-
 
         if sort:
             if imageDupList != [] and type(imageDupList) is list:
@@ -58,37 +58,24 @@ def duplicateSorter(directory, difference=18, hashSize=12, reverseVar=True, sort
                             os.replace(directory + imageDupList[i], duplicateDirectory + imageDupList[i])
     return count
 
-# This is a mess, needs severe optimization
-def secondPassDS(directory):
-    groupedImages = []
-    # accumulates folders
-    folders = [entry for entry in os.scandir(directory) if entry.is_dir()]
 
-    for folder in folders:
-        #imagesAtLowestRes = [Image.open(image.path).size for image in os.scandir(folder.path)]
-        for image in os.scandir(folder.path):
-            groupedImages.append(Image.open(image.path).size)
-            lowestRes = min(groupedImages)
-            #print(lowestRes)
-            for image1 in groupedImages:
-                if lowestRes == image1:
-                    lowResImageHash = imagehash.phash(Image.open(image.path))
-                    
-                    for imageRoot in os.scandir(directory):
-                        if not imageRoot.is_dir():
-                            rootImageHash = imagehash.phash(Image.open(imageRoot.path))
-                            if lowResImageHash - rootImageHash <10:
-                                if not os.path.isfile(image.path[:len(image.name)]+"/"+imageRoot.name):
-                                    if os.path.isfile("./Textures/"+imageRoot.name):
-                                        # Needs optimization, checks files multiple times
-                                        print(image.path[:len(image.name)], imageRoot.path)
-                                        print(image.path[:len(image.name)]+"/"+imageRoot.name)
-                                        try:
-                                            os.replace(imageRoot.path, image.path[:len(image.name)]+"/"+imageRoot.name)
-                                        except:
-                                            None
+def secondary_passes(directory, difference=10, hash_size=8):
+    files = [[root, files] for root, dir, files in os.walk(directory, topdown=True)] # Uses os.walk to get all files and their subdirectories
+    mainDirectory = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")] # Gets only .pngs of mainDirectory
+    for parent_dir, files_in_parent in files[1:]: # Cuts off the first entry in files because that is the main directory, not sub folders
+        lowres_images = []
 
-    #1. Access one folder in list
-    #2. Get smallest image (size wise) in folder with min(list)
-    #3. Compare smallest image ONLY hash with other images in root of ./Textures/
-    #4. Move hashes that match under a certain value to the other directory
+        image_sizes = [Image.open(os.path.join(parent_dir,image)).size for image in files_in_parent]
+        image_paths = [image for image in files_in_parent]
+
+        for image in image_paths:
+            if Image.open(os.path.join(parent_dir, image)).size == min(image_sizes):
+                lowres_images.append(image)
+
+        for image_in_mainDirectory in mainDirectory:
+            try:
+                if imagehash.phash(Image.open(os.path.join(parent_dir, lowres_images[0])), hash_size) - imagehash.phash(Image.open(image_in_mainDirectory.path), hash_size) < difference:
+                    print(os.path.join(parent_dir, lowres_images[0]), image_in_mainDirectory.path)
+                    os.replace(image_in_mainDirectory.path, os.path.join(parent_dir, image_in_mainDirectory.name))
+            except:
+                None
