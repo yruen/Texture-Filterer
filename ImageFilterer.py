@@ -3,7 +3,7 @@ import argparse
 
 from imageDuplicateDetector import duplicate_sorter
 from sameResGrouper import group_resolution, group_all_same_resolution
-from alphaValueGrouper import alphaGrouping
+from alphaValueGrouper import alpha_grouping
 from specialImageGrouping import mm3dSaveFileGrouping
 
 hashCheck = True # Enables the hash checking, disabled by default because it is CPU intensive

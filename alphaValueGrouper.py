@@ -2,7 +2,7 @@
 import os
 from PIL import Image
 
-def alphaGrouping(directory):
+def alpha_grouping(directory):
 
     alpha_directory = os.path.join(directory, "alpha")
     rgb_directory = os.path.join(directory, "RGB")
