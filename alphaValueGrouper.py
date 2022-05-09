@@ -4,24 +4,24 @@ from PIL import Image
 
 def alphaGrouping(directory):
 
-    alphaDirectory = f"{directory}alpha/"
-    rgbDirectory = f"{directory}RGB/"
+    alpha_directory = os.path.join(directory, "alpha")
+    rgb_directory = os.path.join(directory, "RGB")
 
-    subDirectoriesList = [
-        alphaDirectory,
-        rgbDirectory,
+    sub_directories_list = [
+        alpha_directory,
+        rgb_directory,
     ]
 
     # Check if folders exist to sort images into
-    for dir in subDirectoriesList:
+    for dir in sub_directories_list:
         if not os.path.isdir(dir):
             os.mkdir(dir)
 
     # checks if file in directory is a .png
-    images = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")]
+    image_list = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")]
 
-    for image in images: # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
+    for image in image_list: # gets the Alpha channel of an Image and checks how many differences there are, if 1 it has no transparency
         if len(Image.open(image.path).getchannel("A").getcolors()) > 1:
-            os.replace(image.path, alphaDirectory + image.name)
+            os.replace(image.path, os.path.join(alpha_directory, image.name))
         else:
-            os.replace(image.path, rgbDirectory + image.name)
+            os.replace(image.path, os.path.join(rgb_directory, image.name))
