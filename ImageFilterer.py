@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import argparse
 import os, sys
-from imageDuplicateDetector import duplicateSorter, secondPassDS
-from sameResGrouper import groupAllSameResolution
-from alphaValueGrouper import alphaGrouping
-from specialImageGrouping import mm3dSaveFileGrouping
+
+from imageDuplicateDetector import duplicate_sorter
+from sameResGrouper import group_all_same_resolution
+from alphaValueGrouper import alpha_grouping
+from specialImageGrouping import mm3d_savefile_grouping
 
 clear = "\x1b[m"
 blue = "\x1b[34m"
@@ -14,6 +15,7 @@ sort_text = f"""Choose sorting mode:
         {blue}[2]{clear} Resolution
         {blue}[3]{clear} image similarity (CPU intensive)
         {blue}[4]{clear} Save file preview"""
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", "--texture-folder", metavar="FOLDER", dest="folder")
@@ -60,21 +62,23 @@ elif os.isatty(1):  # if it's a interactive session, ask for it
             exit(1)
         break
 
-else: # if neither, use default
-    print(f"{red}no sorting mode! sorting using defalt alpha mode{clear}", file=sys.stderr)
+else:  # if neither, use default
+    print(
+        f"{red}no sorting mode! sorting using defalt alpha mode{clear}", file=sys.stderr
+    )
     sort = 1
 
 # Sorters
 # All return the count of images sorted
 if sort == 1:  # alpha
     # Group images by their alpha channel
-    alphaGrouping(mainDirectory)
+    alpha_grouping(mainDirectory)
 
 elif sort == 2:  # resolution
     # Group all images in a directory by their resolution
-    groupAllSameResolution(mainDirectory)
+    group_all_same_resolution(mainDirectory)
 
-elif sort == 3:  # image similarity
+elif sort == 3:  # Image similarity
     """
     Group images by similarity using ImageHash
     difference value determines how similar images must look; lower value means images have to look more similar
@@ -83,9 +87,9 @@ elif sort == 3:  # image similarity
     Set printOutput to True to see images being combined
     REPLACE WITH A PROGRESS BAR ?
     """
-    duplicateSorter(mainDirectory)
+    duplicate_sorter(mainDirectory)
     # secondPassDS(mainDirectory)
 
 elif sort == 4:  # save file preview
     # mm3D save file preview separation
-    mm3dSaveFileGrouping(mainDirectory)
+    mm3d_savefile_grouping(mainDirectory)
