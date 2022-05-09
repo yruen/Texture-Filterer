@@ -5,7 +5,7 @@ from PIL import Image
 # checks if the image is a Majoras mask 3D save file preview (doesn't need to be upscaled)
 # Cropping dimensions for MM3D Savefile preview textures
                                                 #left, top, right, bottom
-def mm3dSaveFileGrouping(directory, dimensions=(400, 0, 410, 10)):
+def mm3d_savefile_grouping(directory, dimensions=(400, 0, 410, 10)):
 
     count = 0 # keeps track of how many images there are
     savefile_preview_dir = os.path.join(directory, "saveFilePreview")
