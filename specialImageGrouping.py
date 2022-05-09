@@ -8,16 +8,16 @@ from PIL import Image
 def mm3dSaveFileGrouping(directory, dimensions=(400, 0, 410, 10)):
 
     count = 0 # keeps track of how many images there are
-    saveFilePreviewDir = directory + "saveFilePreview/"
-    if not os.path.isdir(saveFilePreviewDir):
-        os.mkdir(saveFilePreviewDir)
+    savefile_preview_dir = os.path.join(directory, "saveFilePreview")
+    if not os.path.isdir(savefile_preview_dir):
+        os.mkdir(savefile_preview_dir)
 
-    images = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")]
-    for image in images:
+    image_list = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")]
+    for image in image_list:
         if Image.open(image.path).size == (512, 256):
                 # Image is cropped to check if it's one color as is the case in mm3D's save file preview texture
                 img_cropped = (Image.open(image.path).crop(dimensions))
                 if len(img_cropped.getcolors()) == 1:
-                    os.replace(image.path, saveFilePreviewDir + image.name)
+                    os.replace(image.path, os.path.join(savefile_preview_dir, image.name))
                     count+= 1
     return count

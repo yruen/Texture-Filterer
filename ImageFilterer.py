@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import argparse
 
-from imageDuplicateDetector import duplicateSorter, secondPassDS
-from sameResGrouper import groupResolution, groupAllSameResolution
-from alphaValueGrouper import alphaGrouping
+from imageDuplicateDetector import duplicate_sorter
+from sameResGrouper import group_resolution, group_all_same_resolution
+from alphaValueGrouper import alpha_grouping
 from specialImageGrouping import mm3dSaveFileGrouping
 
-hashCheck = False # Enables the hash checking, disabled by default because it is CPU intensive
+hashCheck = True # Enables the hash checking, disabled by default because it is CPU intensive
 
 def get_texture_dir():
     """
@@ -44,7 +44,7 @@ REPLACE WITH A PROGRESS BAR ?
 """
 
 if hashCheck:
-    duplicateSorter(mainDirectory)
+    duplicate_sorter(mainDirectory)
     #secondPassDS(mainDirectory)
     #duplicateSorter(mainDirectory, difference=8, hashSize=12, printOutput=False)
     #print("Done")
@@ -53,7 +53,7 @@ if hashCheck:
 #groupAllSameResolution(mainDirectory)
 
 # Group images by a given resolution, tuples are prefered
-#groupResolution(mainDirectory, (16,16))
+#group_resolution(mainDirectory, (16,16))
 
 # Group images by their alpha channel
 #alphaGrouping(mainDirectory)
