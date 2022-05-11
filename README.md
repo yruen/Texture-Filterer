@@ -9,7 +9,15 @@ You can use one sorting method and specify a directory created from using anothe
 1. Alpha and RGB
 2. Resolution
 3. Similarity with Imagehash (useful for mipmaps)
+4. mm3D save file preview
 
 ## Will do in the future:
 1. Replace lowres mipmaps with their high res counterparts
 2. Computer Vision sorting (Tensorflow powered)
+
+## USAGE:
+```
+python ImageFilterer.py -t FOLDER -s SORTING_MODE
+  -t / --texture-folder      Specify the folder in which your textures are located, if none set to "./Textures/"
+  -s / --sort-mode           Choose how to sort/group images with an INT corresponding to the previously listed methods (Ex: 2 = Resolution sorting)
+```
