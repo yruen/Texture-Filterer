@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import imagehash
 
+
 class CacheHash:
     def __init__(self, directory, cacheFile, hash_size: int):
         self.hash_size = hash_size
@@ -12,6 +13,15 @@ class CacheHash:
 
         self.cacheFile = open(cacheFile, "a+t", encoding="utf-8")
         self.parse()
+
+    def __del__(self):
+        self.cacheFile.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.__del__()
 
     def parse(self):
         self.cacheFile.seek(0)  # go to start of the file
@@ -51,45 +61,44 @@ def duplicate_sorter(
     sort=True,
     print_output=False,
 ):
-    cache = CacheHash(directory, f".hash{hash_size}", hash_size)
     count = 0 # keeps track of how many duplicates there are
-    
+
     # For loop that gets files from directory and checks if they're PNGs
     image_list = [image_files for image_files in os.scandir(directory) if image_files.name.endswith(".png")]
     if reverse_var: image_list.reverse() # starting from higher res files might be better?
 
+    with CacheHash(directory, f".hash{hash_size}", hash_size) as cache:
+        for image in image_list:
+            duplicate_images = []
+            image_list.remove(image)    # Image is removed to reduce amount of images hashed
+            # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
+            # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
+            hash1 = cache.get_hash(image.path)
 
-    for image in image_list:
-        duplicate_images = []
-        image_list.remove(image)    # Image is removed to reduce amount of images hashed
-        # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
-        # In testing against mm3D textures, phash with a difference of 18 and hash size of 12 worked the best with a few misses
-        hash1 = cache.get_hash(image.path)
+            for image2 in image_list:
+                hash2 = cache.get_hash(image2.path)
+                # The lower the difference value, the closer the images have to look to each other
+                if hash1 - hash2 < difference:
+                    count += 1
+                    if image not in duplicate_images:
+                        duplicate_images.append(image)
+                    if image2 not in duplicate_images:
+                        duplicate_images.append(image2)
+                    image_list.remove(image2)
+            # move the "if image not in duplicate_images:" check outside before hashing to prevent unnecesary hashing?
+            if sort:
+                # Checks that there are images, type check might be a bit redudant
+                if duplicate_images != [] and type(duplicate_images) is list:
+                    if print_output: print(duplicate_images)
+                    for image in duplicate_images[1:]:
+                        duplicate_directory = duplicate_images[0].path[0:-4]
+                        if not os.path.isdir(duplicate_directory):
+                            os.mkdir(duplicate_directory)
+                        if os.path.exists(duplicate_images[0].path):
+                            os.replace(duplicate_images[0].path, os.path.join(duplicate_directory, duplicate_images[0].name))
 
-        for image2 in image_list:
-            hash2 = cache.get_hash(image2.path)
-            # The lower the difference value, the closer the images have to look to each other
-            if hash1 - hash2 < difference:
-                count += 1
-                if image not in duplicate_images:
-                    duplicate_images.append(image)
-                if image2 not in duplicate_images:
-                    duplicate_images.append(image2)
-                image_list.remove(image2)
-        # move the "if image not in duplicate_images:" check outside before hashing to prevent unnecesary hashing?
-        if sort:
-            # Checks that there are images, type check might be a bit redudant
-            if duplicate_images != [] and type(duplicate_images) is list:
-                if print_output: print(duplicate_images)
-                for image in duplicate_images[1:]:
-                    duplicate_directory = duplicate_images[0].path[0:-4]
-                    if not os.path.isdir(duplicate_directory):
-                        os.mkdir(duplicate_directory)
-                    if os.path.exists(duplicate_images[0].path):
-                        os.replace(duplicate_images[0].path, os.path.join(duplicate_directory, duplicate_images[0].name))
-
-                    if os.path.exists(image.path):
-                        os.replace(image.path, os.path.join(duplicate_directory, image.name))
+                        if os.path.exists(image.path):
+                            os.replace(image.path, os.path.join(duplicate_directory, image.name))
 
     return count
 
