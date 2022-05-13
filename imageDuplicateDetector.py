@@ -7,12 +7,10 @@ class CacheHash:
         self.hash_size = hash_size
         self.directory = directory
         self.cache = {}
-                        # Usage of os.path.join prevents errors from input having an extra slash ex: input is /directory/ rather than /directory
+        # Usage of os.path.join prevents errors from input having an extra slash ex: input is /directory/ rather than /directory
         cacheFile = os.path.join(directory, cacheFile)
 
-        os.close(os.open(cacheFile, os.O_CREAT))  # create the file if it doesn't exist
-
-        self.cacheFile = open(cacheFile, "r+t", encoding="utf-8")
+        self.cacheFile = open(cacheFile, "a+t", encoding="utf-8")
         self.parse()
 
     def parse(self):
