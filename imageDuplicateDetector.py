@@ -28,11 +28,11 @@ class CacheHash:
         for line in self.cacheFile:
             try:
                 (img, imghash) = line.split("\0")
-                self.cache[img] = int(imghash, 16)
+                self.cache[img] = imagehash.hex_to_hash(imghash)
             except ValueError:
                 continue  # if this line corrupt/broken, go to the next line
 
-    def get_hash(self, img) -> int:
+    def get_hash(self, img) -> imagehash.ImageHash:
         """
         gets the hash of an image
         if the hash is on the cache, get it from there
