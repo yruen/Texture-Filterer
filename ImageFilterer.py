@@ -2,10 +2,10 @@
 import argparse
 import os, sys
 
-from imageDuplicateDetector import duplicate_sorter
-from sameResGrouper import group_all_same_resolution
-from alphaValueGrouper import alpha_grouping
-from specialImageGrouping import mm3d_savefile_grouping
+from sorting_scripts.imageDuplicateDetector import duplicate_sorter
+from sorting_scripts.sameResGrouper import group_all_same_resolution
+from sorting_scripts.alphaValueGrouper import alpha_grouping
+from sorting_scripts.specialImageGrouping import mm3d_savefile_grouping
 
 clear = "\x1b[m"
 blue = "\x1b[34m"
