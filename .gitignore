@@ -130,4 +130,9 @@ dmypy.json
 
 # images
 *.png
+
+# Other files
 Textures/.hash12
+Textures/.hash10
+Textures/.hash8
+*.zip
