@@ -6,16 +6,18 @@ from sorting_scripts.imageDuplicateDetector import duplicate_sorter
 from sorting_scripts.sameResGrouper import group_all_same_resolution
 from sorting_scripts.alphaValueGrouper import alpha_grouping
 from sorting_scripts.specialImageGrouping import mm3d_savefile_grouping
+from other_scripts.otherUtils import mipmapReplacement, revertSorting
 
+command_options = ("Alpha (default)", "Resolution", "Image similarity (CPU intensive)", "Save file preview", "Extras")
+extra_command_options = ("Mipmap replacement (DESTRUCTIVE!!!)", "Revert sorting (Run this in case you messed up using a sorthing algortihm;\n DOES NOT REVERT A DESTRUCTIVE UTIL)")
 clear = "\x1b[m"
 blue = "\x1b[34m"
 red = "\x1b[31m"
-sort_text = f"""Choose sorting mode:
-        {blue}[1]{clear} Alpha (default)
-        {blue}[2]{clear} Resolution
-        {blue}[3]{clear} image similarity (CPU intensive)
-        {blue}[4]{clear} Save file preview"""
 
+sort_text = "Choose sorting mode:\n"
+
+for count, option in enumerate(command_options):
+    sort_text += f"{blue}[{count+1}]{clear} {option}\n"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", "--texture-folder", metavar="FOLDER", dest="folder")
@@ -33,7 +35,7 @@ else:
     )
 
 
-sort_range = range(1, 5)  # number of sorting modes (4 currently) in a range
+sort_range = range(1, len(command_options)+1)  # number of sorting modes in a range
 if args.sort:
     if args.sort in sort_range:
         sort = args.sort
@@ -93,3 +95,67 @@ elif sort == 3:  # Image similarity
 elif sort == 4:  # save file preview
     # mm3D save file preview separation
     mm3d_savefile_grouping(mainDirectory)
+
+elif sort == 5: # Extras menu
+    extras_string = f"Extras menu\n"
+    for count, option in enumerate(extra_command_options):
+        extras_string += f"{blue}[{count+1}]{clear} {option}\n"
+
+    print(extras_string)
+    while True:
+        try:
+            extras_input = int(input(">>> "))
+            if extras_input in range(1,len(extra_command_options)+1):
+                break
+            else:
+                print(
+                    f"{red}not a valid sorting method! try again{clear}",
+                    file=sys.stderr,
+                )
+                continue
+        except ValueError as e:
+            print(f"{red}{str(e)[40:]} not a number!{clear}", file=sys.stderr)
+            continue
+        except (EOFError, KeyboardInterrupt):
+            print()  # print newline so it doesn't mess up bash
+            exit(1)
+        break
+
+    for count, option in enumerate(extra_command_options):
+        if extras_input == count+1:
+            extras_input = option
+
+    """
+    Replace mipmaps with their high res counterparts by copying the high res image in a folder and overwriting lower-res images
+    Expected that duplicate_sorter from imageDuplicateDetector has been run at least once
+    Idea from Issue #8
+
+    DESTRUCTIVE !!!! MAKE SURE TO HAVE A BACKUP IN THE EVENT THAT duplicate_sorter MESSED UP
+    MAKE SURE YOU DID NOT SEPARATE BY ALPHA
+    """
+    if "Mipmap" in extras_input:
+        import time
+        print(f"Mipmap replacement is {red}destructive{clear}\nit works by copying the largest image in a subfolder\nand overwriting smaller images with no check for similarity\n\n{red}Make sure you have a backup of your images before using!!!!!{clear}", file=sys.stderr)
+        time.sleep(3)
+        print("To continue type 'Mipmap' or exit by doing Ctrl+C", file=sys.stderr)
+        while True:
+            try:
+                user_confirmation = input(f"{red}>>> {clear}")
+                if user_confirmation == "Mipmap":
+                    print(f"{red}proceeding{clear}")
+                    mipmapReplacement(mainDirectory)
+                    break
+                else:
+                    print(
+                        f"{red}Not 'Mipmap', to exit press Ctrl+C{clear}",
+                        file=sys.stderr,
+                    )
+                    continue
+            except (EOFError, KeyboardInterrupt):
+                print()  # print newline so it doesn't mess up bash
+                exit(1)
+            break
+
+    # Revert *sorting*, does not revert destructive utils
+    elif "Revert" in extras_input:
+        revertSorting(mainDirectory)
