@@ -6,7 +6,7 @@ from sorting_scripts.imageDuplicateDetector import duplicate_sorter
 from sorting_scripts.sameResGrouper import group_all_same_resolution
 from sorting_scripts.alphaValueGrouper import alpha_grouping
 from sorting_scripts.specialImageGrouping import mm3d_savefile_grouping
-from other_scripts.otherUtils import mipmapReplacement, revertSorting
+from other_scripts.otherUtils import mipmap_replacement, revert_sorting
 
 command_options = ("Alpha (default)", "Resolution", "Image similarity (CPU intensive)", "Save file preview", "Extras")
 extra_command_options = ("Mipmap replacement (DESTRUCTIVE!!!)", "Revert sorting (Run this in case you messed up using a sorthing algortihm;\n DOES NOT REVERT A DESTRUCTIVE UTIL)")
@@ -143,7 +143,7 @@ elif sort == 5: # Extras menu
                 user_confirmation = input(f"{red}>>> {clear}")
                 if user_confirmation == "Mipmap":
                     print(f"{red}proceeding{clear}")
-                    mipmapReplacement(mainDirectory)
+                    mipmap_replacement(mainDirectory)
                     break
                 else:
                     print(
@@ -158,4 +158,4 @@ elif sort == 5: # Extras menu
 
     # Revert *sorting*, does not revert destructive utils
     elif "Revert" in extras_input:
-        revertSorting(mainDirectory)
+        revert_sorting(mainDirectory)

@@ -12,7 +12,7 @@ Idea from Issue #8
 DESTRUCTIVE !!!! MAKE SURE TO HAVE A BACKUP IN THE EVENT THAT duplicate_sorter MESSED UP
 MAKE SURE YOU DID NOT SEPARATE BY ALPHA
 """
-def mipmapReplacement(directory):
+def mipmap_replacement(directory):
     texture_dir = [[root, files] for root, dir, files in os.walk(directory, topdown=True)] # Uses os.walk to get all files and their subdirectories
 
     for dir, files_in_parent in texture_dir[1:]: # Cuts off the first entry in files because that is the main directory, not sub folders
@@ -27,7 +27,7 @@ def mipmapReplacement(directory):
                             shutil.copyfile(os.path.join(dir, image), os.path.join(dir, image2))
 
 # Revert *sorting*, does not revert destructive utils
-def revertSorting(directory):
+def revert_sorting(directory):
     texture_dir = [[root, files] for root, dir, files in os.walk(directory, topdown=True)] # Uses os.walk to get all files and their subdirectories
     for dir, files_in_parent in texture_dir[1:]: # Cuts off the first entry in files because that is the main directory, not sub folders
         for image in files_in_parent:
