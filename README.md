@@ -1,7 +1,7 @@
 # Texture Filter
-This is a Python script designed to sort textures dumped from **Majoras Mask 3D** to aid upscaling and texture pack creation
-It primarily uses Pillow and ImageHash
-## The sorting modes do NOT work with each other all the same time
+This is a Python script designed to sort textures dumped from **Majoras Mask 3D** (but can be modified to different types of texture) to aid upscaling and texture pack creation. It primarily uses Pillow and [ImageHash](https://pypi.org/project/ImageHash/) (for image similarity)
+
+### The sorting modes do NOT work with each other all the same time
 Due to the way images are organized into folders as of this moment you may only choose one sorting method<br/>
 You can use one sorting method and specify a directory created from using another sorting method
 
@@ -11,9 +11,11 @@ You can use one sorting method and specify a directory created from using anothe
 3. Similarity with Imagehash (useful for mipmaps)
 4. mm3D save file preview
 
+## Can also:
+1. Replace lowres mipmaps with their high res counterparts (destructive)
+
 ## Will do in the future:
-1. Replace lowres mipmaps with their high res counterparts
-2. Computer Vision sorting (Tensorflow powered)
+1. Computer Vision sorting (Tensorflow powered)
 
 ## USAGE:
 ```
