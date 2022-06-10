@@ -10,7 +10,7 @@ Expected that duplicate_sorter from imageDuplicateDetector has been run at least
 Idea from Issue #8
 
 DESTRUCTIVE !!!! MAKE SURE TO HAVE A BACKUP IN THE EVENT THAT duplicate_sorter MESSED UP
-MAKE SURE YOU DID NOT SEPARATE BY ALPHA
+MAKE SURE YOU ONLY SEPARATED BY IMAGE SIMILARITY BEFORE RUNNING
 """
 def mipmap_replacement(directory):
     texture_dir = [[root, files] for root, dir, files in os.walk(directory, topdown=True)] # Uses os.walk to get all files and their subdirectories
