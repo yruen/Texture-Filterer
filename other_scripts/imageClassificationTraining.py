@@ -17,15 +17,15 @@ import pathlib
 test_image = "./Textures/Textures/tex1_128x256_F829770B1B7A39C7_12.png"
 
 # Dataset setup
-data_dir = pathlib.Path("C:/Users/1529059/Documents/Github/TexturesforTF/TFtrain2/TFtrain1/")
+data_dir = pathlib.Path("")
 
-batch_size = 32
-img_height = 180
-img_width = 180
+batch_size = 16
+img_height = 128
+img_width = 128
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
-  validation_split=0.2,
+  validation_split=0.1,
   subset="training",
   seed=123,
   image_size=(img_height, img_width),
@@ -123,7 +123,7 @@ model.compile(optimizer='adam',
 model.summary()
 
 # training
-epochs = 30
+epochs = 20
 history = model.fit(
   train_ds,
   validation_data=val_ds,
