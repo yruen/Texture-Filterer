@@ -23,6 +23,6 @@ python ImageFilterer.py -t FOLDER -s SORTING_MODE
   -t / --texture-folder      Specify the folder in which your textures are located, if none set to "./Textures/"
   -s / --sort-mode           Choose how to sort/group images with an INT corresponding to the previously listed methods (Ex: 2 = Resolution sorting)
 ```
-Also has a kinda interactive UI by running ImageFilterer.py only (texture-folder defaults to "./Textures/" if not specified
+Also has a kinda interactive UI by running ImageFilterer.py only (texture-folder defaults to "./Textures/" if not specified)
 ### IF ON WINDOWS
 Please use Powershell for proper GUI on terminal; CMD does not support Unicode escapes (?)
