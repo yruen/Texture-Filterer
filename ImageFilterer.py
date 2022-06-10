@@ -71,7 +71,7 @@ else:  # if neither, use default
 # Sorters
 # All return the count of images sorted
 if sort == 1:  # alpha
-    # Group images by their alpha channel
+    # Group images by whether they have an alpha channel
     count = alpha_grouping(mainDirectory)
     print(f"{count[0]} images with alpha and {count[1]} images without alpha separated")
 
