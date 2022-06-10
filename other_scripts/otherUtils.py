@@ -34,4 +34,9 @@ def revert_sorting(directory):
             if image[-4:] in image_file_extensions:
                     #print(os.path.join(dir, image)) # maybe incorporate later
                     shutil.move(os.path.join(dir, image), os.path.join(directory, image)) # Moves all images outside into parent folder
-        os.rmdir(dir) # Deletes empty folders
+        try:
+            os.rmdir(dir) # Deletes empty folders
+        except:
+            None
+            # TODO get error type and make this error prompt fancier
+            #print("Couldn't ")

@@ -1,5 +1,5 @@
 # Texture Filter
-This is a Python script designed to sort textures dumped from **Majoras Mask 3D** (but can be modified to different types of texture) to aid upscaling and texture pack creation. It primarily uses Pillow and [ImageHash](https://pypi.org/project/ImageHash/) (for image similarity)
+This is a Python script designed to sort textures dumped from **Majoras Mask 3D** (but can be modified to different types of texture) to aid upscaling and texture pack creation. It primarily uses Pillow, [ImageHash](https://pypi.org/project/ImageHash/) (for image similarity checking) and [tqdm](https://pypi.org/project/tqdm/) 
 
 ### The sorting modes do NOT work with each other all the same time
 Due to the way images are organized into folders as of this moment you may only choose one sorting method<br/>
@@ -23,3 +23,5 @@ python ImageFilterer.py -t FOLDER -s SORTING_MODE
   -t / --texture-folder      Specify the folder in which your textures are located, if none set to "./Textures/"
   -s / --sort-mode           Choose how to sort/group images with an INT corresponding to the previously listed methods (Ex: 2 = Resolution sorting)
 ```
+### IF ON WINDOWS
+Please use Powershell for proper GUI on terminal; CMD does not support Unicode escapes (?)

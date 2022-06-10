@@ -2,9 +2,8 @@
 import argparse
 import os, sys
 
-from sorting_scripts.imageDuplicateDetector import duplicate_sorter
-from sorting_scripts.sameResGrouper import group_all_same_resolution
-from sorting_scripts.alphaValueGrouper import alpha_grouping
+from sorting_scripts.imageDuplicateDetector import duplicate_sorter, secondary_passes
+from sorting_scripts.basicSorters import alpha_grouping, group_all_same_resolution
 from sorting_scripts.specialImageGrouping import mm3d_savefile_grouping
 from other_scripts.otherUtils import mipmap_replacement, revert_sorting
 
@@ -33,7 +32,6 @@ else:
         f"{red}no folder specified! using default {mainDirectory}{clear}",
         file=sys.stderr,
     )
-
 
 sort_range = range(1, len(command_options)+1)  # number of sorting modes in a range
 if args.sort:
@@ -73,12 +71,13 @@ else:  # if neither, use default
 # Sorters
 # All return the count of images sorted
 if sort == 1:  # alpha
-    # Group images by their alpha channel
-    alpha_grouping(mainDirectory)
+    # Group images by whether they have an alpha channel
+    count = alpha_grouping(mainDirectory)
+    print(f"{count[0]} images with alpha and {count[1]} images without alpha separated")
 
 elif sort == 2:  # resolution
     # Group all images in a directory by their resolution
-    group_all_same_resolution(mainDirectory)
+    print(group_all_same_resolution(mainDirectory), "images sorted according to their resolution")
 
 elif sort == 3:  # Image similarity
     """
@@ -86,15 +85,13 @@ elif sort == 3:  # Image similarity
     difference value determines how similar images must look; lower value means images have to look more similar
     hashSize value determines the complexity of the hashing; higher values means higher intensity = more CPU usage = takes longer
     adjust difference and hashSize values in relation with each other
-    Set printOutput to True to see images being combined
-    REPLACE WITH A PROGRESS BAR ?
     """
-    duplicate_sorter(mainDirectory)
-    # secondPassDS(mainDirectory)
+    print(f"{duplicate_sorter(mainDirectory)} similar images sorted")
+    #print(secondary_passes(mainDirectory), "similar images in second pass sorted")
 
 elif sort == 4:  # save file preview
     # mm3D save file preview separation
-    mm3d_savefile_grouping(mainDirectory)
+    print (mm3d_savefile_grouping(mainDirectory), "save file previews sorted")
 
 elif sort == 5: # Extras menu
     extras_string = f"Extras menu\n"
@@ -127,7 +124,7 @@ elif sort == 5: # Extras menu
 
     """
     Replace mipmaps with their high res counterparts by copying the high res image in a folder and overwriting lower-res images
-    Expected that duplicate_sorter from imageDuplicateDetector has been run at least once
+    Expects that duplicate_sorter (image similarity) from imageDuplicateDetector has been run at least once
     Idea from Issue #8
 
     DESTRUCTIVE !!!! MAKE SURE TO HAVE A BACKUP IN THE EVENT THAT duplicate_sorter MESSED UP
@@ -140,8 +137,8 @@ elif sort == 5: # Extras menu
         print("To continue type 'Mipmap' or exit by doing Ctrl+C", file=sys.stderr)
         while True:
             try:
-                user_confirmation = input(f"{red}>>> {clear}")
-                if user_confirmation == "Mipmap":
+                user_input = input(f"{red}>>> {clear}")
+                if user_input == "Mipmap":
                     print(f"{red}proceeding{clear}")
                     mipmap_replacement(mainDirectory)
                     break
@@ -159,3 +156,4 @@ elif sort == 5: # Extras menu
     # Revert *sorting*, does not revert destructive utils
     elif "Revert" in extras_input:
         revert_sorting(mainDirectory)
+        print("Placed everything inside of folders outside")
