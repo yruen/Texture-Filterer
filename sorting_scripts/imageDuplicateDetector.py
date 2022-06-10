@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 import imagehash
-
+from tqdm import tqdm
 
 class CacheHash:
     def __init__(self, directory, cacheFile, hash_size: int):
@@ -52,14 +52,12 @@ difference value determines how similar images must look; lower value means imag
 hash_size value determines the complexity of the hashing; higher values means higher intensity = more CPU usage = takes longer
 adjust difference and hash_size values in relation with each other
 """
-# The default values chosen here are what worked best for grouping together higher resolution (32x32 and higher) mm3D textures
+# The default values chosen here are what worked best for grouping together most mm3D textures
 def duplicate_sorter(
     directory,
     difference=18,
     hash_size=12,
     reverse_var=True,
-    sort=True,
-    print_output=False,
 ):
     count = 0 # keeps track of how many duplicates there are
 
@@ -68,7 +66,7 @@ def duplicate_sorter(
     if reverse_var: image_list.reverse() # starting from higher res files might be better?
 
     with CacheHash(directory, f".hash{hash_size}", hash_size) as cache:
-        for image in image_list:
+        for image in tqdm(image_list):
             duplicate_images = []
             image_list.remove(image)    # Image is removed to reduce amount of images hashed
             # Imagehash has multiple methods, refer to the documentation and experiment with the one that works best for you
@@ -85,27 +83,24 @@ def duplicate_sorter(
                     if image2 not in duplicate_images:
                         duplicate_images.append(image2)
                     image_list.remove(image2)
-            # move the "if image not in duplicate_images:" check outside before hashing to prevent unnecesary hashing?
-            if sort:
-                # Checks that there are images, type check might be a bit redudant
-                if duplicate_images != [] and type(duplicate_images) is list:
-                    if print_output: print(duplicate_images)
-                    for image in duplicate_images[1:]:
-                        duplicate_directory = duplicate_images[0].path[0:-4]
-                        if not os.path.isdir(duplicate_directory):
-                            os.mkdir(duplicate_directory)
-                        if os.path.exists(duplicate_images[0].path):
-                            os.replace(duplicate_images[0].path, os.path.join(duplicate_directory, duplicate_images[0].name))
 
-                        if os.path.exists(image.path):
-                            os.replace(image.path, os.path.join(duplicate_directory, image.name))
-
+            if duplicate_images != [] and type(duplicate_images) is list:
+                for image in duplicate_images:
+                    duplicate_directory = duplicate_images[0].path[0:-4]
+                    if not os.path.isdir(duplicate_directory):
+                        os.mkdir(duplicate_directory)
+                    if os.path.exists(duplicate_images[0].path):
+                        os.replace(duplicate_images[0].path, os.path.join(duplicate_directory, duplicate_images[0].name))
+                    if os.path.exists(image.path):
+                           os.replace(image.path, os.path.join(duplicate_directory, image.name))
     return count
 
+# Less strict values to group smaller images that produce more different hashes 
 def secondary_passes(directory, difference=10, hash_size=8):
     files = [[root, files] for root, dir, files in os.walk(directory, topdown=True)] # Uses os.walk to get all files and their subdirectories
     mainDirectory = [entry for entry in os.scandir(directory) if entry.name.endswith(".png")] # Gets only .pngs of mainDirectory
-    for parent_dir, files_in_parent in files[1:]: # Cuts off the first entry in files because that is the main directory, not sub folders
+    count = 0
+    for parent_dir, files_in_parent in tqdm(files[1:]): # Cuts off the first entry in files because that is the main directory, not sub folders
         lowres_images = []
 
         image_sizes = [Image.open(os.path.join(parent_dir,image)).size for image in files_in_parent]
@@ -118,7 +113,8 @@ def secondary_passes(directory, difference=10, hash_size=8):
         for image_in_mainDirectory in mainDirectory:
             try:
                 if imagehash.phash(Image.open(os.path.join(parent_dir, lowres_images[0])), hash_size) - imagehash.phash(Image.open(image_in_mainDirectory.path), hash_size) < difference:
-                    print(os.path.join(parent_dir, lowres_images[0]), image_in_mainDirectory.path)
+                    count += 1
                     os.replace(image_in_mainDirectory.path, os.path.join(parent_dir, image_in_mainDirectory.name))
             except:
                 None
+    return count
