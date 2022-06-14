@@ -34,8 +34,10 @@ def revert_sorting(directory):
             if image[-4:] in image_file_extensions:
                     #print(os.path.join(dir, image)) # maybe incorporate later
                     shutil.move(os.path.join(dir, image), os.path.join(directory, image)) # Moves all images outside into parent folder
+
+        # Tries code so one folder with non-images doesn't stop the whole thing
         try:
-            os.rmdir(dir)
+            os.rmdir(dir) # For deleting empty folders
         except OSError as e:
             if "39" in str(e):
                 print(f"{e}, skipping")
