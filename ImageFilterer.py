@@ -156,4 +156,4 @@ elif sort == 5: # Extras menu
     # Revert *sorting*, does not revert destructive utils
     elif "Revert" in extras_input:
         revert_sorting(mainDirectory)
-        print("Placed everything inside of folders outside")
+        print("Placed images inside of folders outside")
