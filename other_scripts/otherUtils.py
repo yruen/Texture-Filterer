@@ -35,8 +35,9 @@ def revert_sorting(directory):
                     #print(os.path.join(dir, image)) # maybe incorporate later
                     shutil.move(os.path.join(dir, image), os.path.join(directory, image)) # Moves all images outside into parent folder
         try:
-            os.rmdir(dir) # Deletes empty folders
-        except:
-            None
-            # TODO get error type and make this error prompt fancier
-            #print("Couldn't ")
+            os.rmdir(dir)
+        except OSError as e:
+            if "39" in str(e):
+                print(f"{e}, skipping")
+            else:
+                print(e)
